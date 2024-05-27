@@ -25,7 +25,14 @@ sudo mkdir -p /mnt/rootfs/
 echo "Creating partitions on $device..."
 
 # Use fdisk to create partitions
-echo -e "g\nn\n\n\n+200M\nn\n\n\n\nt\n1\n4\nw\n" | sudo fdisk "$device"
+cat <<EOF | sudo sfdisk "$device"
+label: gpt
+device: ${device}
+unit: sectors
+
+${device}1 : start=        2048, size=     409600, type=4
+${device}2 : start=     411648, size=         0, type=83
+EOF
 
 # Format the second partition as ext4 filesystem
 sudo mkfs.ext4 -L rootfs "${device}2"
